@@ -36,7 +36,7 @@ public class CTokenizer extends Tokenizer<CToken, CParseContext> {
 		}
 		++colNo;
 		if (ch == '\n')  { colNo = 1; ++lineNo; }
-//		System.out.print("'"+ch+"'("+(int)ch+")");
+		//		System.out.print("'"+ch+"'("+(int)ch+")");
 		return ch;
 	}
 	private void backChar(char c) {
@@ -56,7 +56,7 @@ public class CTokenizer extends Tokenizer<CToken, CParseContext> {
 		in = pctx.getIOContext().getInStream();
 		err = pctx.getIOContext().getErrStream();
 		currentTk = readToken();
-//		System.out.println("Token='" + currentTk.toString());
+		//		System.out.println("Token='" + currentTk.toString());
 		return currentTk;
 	}
 	private CToken readToken() {
@@ -70,6 +70,7 @@ public class CTokenizer extends Tokenizer<CToken, CParseContext> {
 		while (!accept) {
 			switch (state) {
 			case 0:					// 初期状態
+				text.setLength(0);
 				ch = readChar();
 				if (ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r') {
 				} else if (ch == (char) -1) {	// EOF
@@ -79,10 +80,18 @@ public class CTokenizer extends Tokenizer<CToken, CParseContext> {
 					startCol = colNo - 1;
 					text.append(ch);
 					state = 3;
-				} else if (ch == '+') {
+				} else if (ch == '+') {//プラスを読んだ
 					startCol = colNo - 1;
 					text.append(ch);
 					state = 4;
+				} else if (ch == '-') {//マイナスを読んだ
+					startCol = colNo - 1;
+					text.append(ch);
+					state = 5;
+				} else if (ch == '/') {//コメント行かな
+					startCol = colNo - 1;
+					text.append(ch);
+					state = 6;
 				} else {			// ヘンな文字を読んだ
 					startCol = colNo - 1;
 					text.append(ch);
@@ -98,6 +107,7 @@ public class CTokenizer extends Tokenizer<CToken, CParseContext> {
 				accept = true;
 				break;
 			case 3:					// 数（10進数）の開始
+				//System.out.print("case3 : ");
 				ch = readChar();
 				if (Character.isDigit(ch)) {
 					text.append(ch);
@@ -111,6 +121,68 @@ public class CTokenizer extends Tokenizer<CToken, CParseContext> {
 			case 4:					// +を読んだ
 				tk = new CToken(CToken.TK_PLUS, lineNo, startCol, "+");
 				accept = true;
+				break;
+			case 5:					// -を読んだ
+				tk = new CToken(CToken.TK_MINUS, lineNo, startCol, "-");
+				accept = true;
+				break;
+			case 6:					// /を読んだ:コメント行?
+				//System.out.print("case6 : ");
+				ch = readChar();
+				if(ch == '*') {//複数コメント行
+					state = 7;
+				}else if(ch == '/') {//単行コメント
+					state = 9;
+				}else {
+					state = 0;
+					backChar(ch);
+					break;
+				}
+				//text.append(ch);
+				break;
+			case 7:					// /*と来た：複数コメント行
+				//System.out.print("case7 : ");
+				ch = readChar();
+				//System.out.print("readChar"+ch+"\n");
+				if(ch == '*') {
+					state = 8;
+				}else if(ch == (char) -1) {//コメント途中にEOF
+					state = 2;
+					//backChar(ch);
+					break;
+				}else {
+					state = 7;
+				}
+				//text.append(ch);
+				break;
+			case 8:					// /*の後に*と来た:複数コメント行終わり?
+				//System.out.print("case8 : ");
+				ch = readChar();
+				//System.out.print("readChar"+ch+"\n");
+				if(ch == '*') {
+					state = 8;
+				}else if(ch == '/') {//複数コメント行終わり
+					state = 0;
+				}else if(ch == (char) - 1) {//コメント途中にEOF
+					state = 2;
+					//backChar(ch);
+					break;
+				}else {
+					state = 7;
+				}
+				//text.append(ch);
+				break;
+			case 9:					// //と来た:単行コメント行
+				ch = readChar();
+				if(ch == '\n' || ch == '\r') {//改行が来たら
+					state = 0;
+				}else if(ch == (char) -1) {//コメント途中にEOF
+					state = 2;
+					//backChar(ch);
+				}else {
+					//text.append(ch);
+					state = 9;
+				}
 				break;
 			}
 		}
