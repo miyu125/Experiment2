@@ -76,10 +76,14 @@ public class CTokenizer extends Tokenizer<CToken, CParseContext> {
 				} else if (ch == (char) -1) {	// EOF
 					startCol = colNo - 1;
 					state = 1;
-				} else if (ch >= '0' && ch <= '9') {
+				} else if (ch >= '1' && ch <= '9') {//0以外の数を読んだ
 					startCol = colNo - 1;
 					text.append(ch);
 					state = 3;
+				}else if (ch == '0') {//0を読んだ
+					startCol = colNo - 1;
+					text.append(ch);
+					state = 10;
 				} else if (ch == '+') {//プラスを読んだ
 					startCol = colNo - 1;
 					text.append(ch);
@@ -92,6 +96,10 @@ public class CTokenizer extends Tokenizer<CToken, CParseContext> {
 					startCol = colNo - 1;
 					text.append(ch);
 					state = 6;
+				}else if (ch == '&') {//&を読んだ
+					startCol = colNo - 1;
+					text.append(ch);
+					state = 11;
 				} else {			// ヘンな文字を読んだ
 					startCol = colNo - 1;
 					text.append(ch);
@@ -115,6 +123,9 @@ public class CTokenizer extends Tokenizer<CToken, CParseContext> {
 					// 数の終わり
 					backChar(ch);	// 数を表さない文字は戻す（読まなかったことにする）
 					tk = new CToken(CToken.TK_NUM, lineNo, startCol, text.toString());
+					if(Integer.decode(text.toString()) > 65535 || Integer.decode(text.toString()) < 0) {//16bit符号なし整数の最大値65535以上の時エラー
+						tk = new CToken(CToken.TK_ILL, lineNo, startCol, "範囲外の数["+text.toString()+"]");
+					}
 					accept = true;
 				}
 				break;
@@ -138,7 +149,6 @@ public class CTokenizer extends Tokenizer<CToken, CParseContext> {
 					backChar(ch);
 					break;
 				}
-				//text.append(ch);
 				break;
 			case 7:					// /*と来た：複数コメント行
 				//System.out.print("case7 : ");
@@ -148,12 +158,10 @@ public class CTokenizer extends Tokenizer<CToken, CParseContext> {
 					state = 8;
 				}else if(ch == (char) -1) {//コメント途中にEOF
 					state = 2;
-					//backChar(ch);
 					break;
 				}else {
 					state = 7;
 				}
-				//text.append(ch);
 				break;
 			case 8:					// /*の後に*と来た:複数コメント行終わり?
 				//System.out.print("case8 : ");
@@ -165,12 +173,10 @@ public class CTokenizer extends Tokenizer<CToken, CParseContext> {
 					state = 0;
 				}else if(ch == (char) - 1) {//コメント途中にEOF
 					state = 2;
-					//backChar(ch);
 					break;
 				}else {
 					state = 7;
 				}
-				//text.append(ch);
 				break;
 			case 9:					// //と来た:単行コメント行
 				ch = readChar();
@@ -178,12 +184,88 @@ public class CTokenizer extends Tokenizer<CToken, CParseContext> {
 					state = 0;
 				}else if(ch == (char) -1) {//コメント途中にEOF
 					state = 2;
-					//backChar(ch);
 				}else {
-					//text.append(ch);
 					state = 9;
 				}
 				break;
+			case 10:				// 0と来た：0or8進数or16進数?
+				ch = readChar();
+				if(ch == 'x') {// 16進数
+					text.append(ch);
+					state = 12;					
+				}else if(ch >= '0' && ch <= '7') {//8進数だから0~7まで！
+					text.append(ch);
+					state = 14;					
+				}else if(ch == (char) - 1){
+					state = 0;
+					backChar(ch);
+					break;
+				}else{
+					// 数の終わり
+					backChar(ch);	// 数を表さない文字は戻す（読まなかったことにする）
+					tk = new CToken(CToken.TK_NUM, lineNo, startCol, text.toString());
+					if(Integer.decode(text.toString()) > 65535 || Integer.decode(text.toString()) < 0) {//16bit符号なし整数の最大値65535以上の時エラー
+						tk = new CToken(CToken.TK_ILL, lineNo, startCol, "範囲外の数["+text.toString()+"]");
+					}
+					accept = true;					
+				}				
+				break;
+			case 11:				// &と来た
+				tk = new CToken(CToken.TK_AMP, lineNo, startCol, "&");
+				accept = true;
+				break;
+			case 12:				//16進数
+				ch = readChar();
+				if((ch >= '0' && ch <= '9') || (ch >= 'a' && ch <= 'f') || (ch >= 'A' && ch <= 'F')) {
+					text.append(ch);
+					state = 13;
+				}else if(ch == (char) - 1){
+					state = 0;
+					backChar(ch);
+				}else {				//数にならないのでエラー　ex)0x^
+					state = 2;
+				}
+				break;
+			case 13:				//16進数の数値
+				ch = readChar();
+				if((ch >= '0' && ch <= '9') || (ch >= 'a' && ch <= 'f') || (ch >= 'A' && ch <= 'F')) {
+					text.append(ch);
+					state = 13;
+				}else if(ch == (char) - 1){
+					state = 0;
+					backChar(ch);
+				}else {
+					// 数の終わり
+					backChar(ch);	// 数を表さない文字は戻す（読まなかったことにする）
+					tk = new CToken(CToken.TK_NUM, lineNo, startCol, text.toString());
+					if(Integer.decode(text.toString()) > 65535 || Integer.decode(text.toString()) < 0) {//16bit符号なし整数の最大値65535以上の時エラー
+						tk = new CToken(CToken.TK_ILL, lineNo, startCol, "範囲外の数["+text.toString()+"]");
+					}
+					accept = true;					
+				}
+				break;
+			case 14:				//8進数
+				ch = readChar();
+				if(ch >= '0' && ch <= '7') {
+					text.append(ch);
+					state = 14;
+				}else if(ch == (char) - 1){
+					state = 0;
+					backChar(ch);
+				}else if(ch >= '8'){
+					state = 2;
+					backChar(ch);
+				}else{
+					// 数の終わり
+					backChar(ch);	// 数を表さない文字は戻す（読まなかったことにする）
+					tk = new CToken(CToken.TK_NUM, lineNo, startCol, text.toString());
+					if(Integer.decode(text.toString()) > 65535 || Integer.decode(text.toString()) < 0) {//16bit符号なし整数の最大値65535以上の時エラー
+						tk = new CToken(CToken.TK_ILL, lineNo, startCol, "範囲外の数["+text.toString()+"]");
+					}
+					accept = true;					
+				}
+				break;
+				
 			}
 		}
 		return tk;
