@@ -4,28 +4,31 @@ import java.io.PrintStream;
 
 import lang.*;
 import lang.c.*;
-import lang.c.parse.Number;
 
 public class Factor extends CParseRule {
-	// factor ::= factorAmp | number
-	private CParseRule number,factoramp,factor;
+	// factor ::= plusFactor | minusFactor | unsignedFactor
+	private CParseRule plusfactor,minusfactor,unsignedfactor,factor;
 	public Factor(CParseContext pcx) {
 	}
 	public static boolean isFirst(CToken tk) {
-		return Number.isFirst(tk) || factorAmp.isFirst(tk);//factorAmpかnumberのisFirstを満たすか
+		return PlusFactor.isFirst(tk) || MinusFactor.isFirst(tk) || UnsignedFactor.isFirst(tk);//plusFactor,minusFactor,UnsignedFactorのisFirstを満たすか
 	}
 	public void parse(CParseContext pcx) throws FatalErrorException {
 		// ここにやってくるときは、必ずisFirst()が満たされている
 		CTokenizer ct = pcx.getTokenizer();
 		CToken tk = ct.getCurrentToken(pcx);
-		if(Number.isFirst(tk)) {
-			number = new Number(pcx);
-			number.parse(pcx);
-			factor = number;
-		}else if(factorAmp.isFirst(tk)) {
-			factoramp = new factorAmp(pcx);
-			factoramp.parse(pcx);
-			factor = factoramp;
+		if(PlusFactor.isFirst(tk)) {
+			plusfactor = new PlusFactor(pcx);
+			plusfactor.parse(pcx);
+			factor = plusfactor;
+		}else if(MinusFactor.isFirst(tk)) {
+			minusfactor = new MinusFactor(pcx);
+			minusfactor.parse(pcx);
+			factor = minusfactor;
+		}else if(UnsignedFactor.isFirst(tk)) {
+			unsignedfactor = new UnsignedFactor(pcx);
+			unsignedfactor.parse(pcx);
+			factor = unsignedfactor;
 		}
 	}
 

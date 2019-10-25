@@ -107,7 +107,7 @@ class ExpressionAdd extends CParseRule {
 			right.codeGen(pcx);		// 右部分木のコード生成を頼む
 			o.println("\tMOV\t-(R6), R0\t; ExpressionAdd: ２数を取り出して、足し、積む<" + op.toString() + ">");
 			o.println("\tMOV\t-(R6), R1\t; ExpressionAdd:");
-			o.println("\tADD\tR1, R0\t; ExpressionAdd:");
+			o.println("\tADD\tR1, R0\t\t; ExpressionAdd:");
 			o.println("\tMOV\tR0, (R6)+\t; ExpressionAdd:");
 		}
 	}
@@ -134,7 +134,7 @@ class ExpressionSub extends CParseRule {
 			right = new Term(pcx);
 			right.parse(pcx);
 		} else {
-			pcx.fatalError(tk.toExplainString() + "+の後ろはtermです");
+			pcx.fatalError(tk.toExplainString() + "-の後ろはtermです");
 		}
 	}
 
@@ -167,7 +167,7 @@ class ExpressionSub extends CParseRule {
 			right.codeGen(pcx);		// 右部分木のコード生成を頼む
 			o.println("\tMOV\t-(R6), R0\t; ExpressionSub: ２数を取り出して、引き、積む<" + op.toString() + ">");					// SUB　FFFFF　TTTTT　のとき
 			o.println("\tMOV\t-(R6), R1\t; ExpressionSub:");															// T－F　→　T　となる
-			o.println("\tSUB\tR0, R1\t; ExpressionAdd:");																// したがって　レジスタは　後入れ　－　先入れ
+			o.println("\tSUB\tR0, R1\t\t; ExpressionSub:");																// したがって　レジスタは　後入れ　－　先入れ
 			o.println("\tMOV\tR1, (R6)+\t; ExpressionSub:");
 		}
 	}

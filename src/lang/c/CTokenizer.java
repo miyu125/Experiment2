@@ -100,6 +100,18 @@ public class CTokenizer extends Tokenizer<CToken, CParseContext> {
 					startCol = colNo - 1;
 					text.append(ch);
 					state = 11;
+				}else if (ch == '*') {//*を読んだ
+					startCol = colNo - 1;
+					text.append(ch);
+					state = 15;
+				}else if (ch == '(') {//(を読んだ
+					startCol = colNo - 1;
+					text.append(ch);
+					state = 16;
+				}else if (ch == ')') {//)を読んだ
+					startCol = colNo - 1;
+					text.append(ch);
+					state = 17;
 				} else {			// ヘンな文字を読んだ
 					startCol = colNo - 1;
 					text.append(ch);
@@ -145,8 +157,10 @@ public class CTokenizer extends Tokenizer<CToken, CParseContext> {
 				}else if(ch == '/') {//単行コメント
 					state = 9;
 				}else {
-					state = 0;
+					text.append(ch);
 					backChar(ch);
+					tk = new CToken(CToken.TK_DIV, lineNo, startCol, "/");
+					accept = true;
 					break;
 				}
 				break;
@@ -183,7 +197,7 @@ public class CTokenizer extends Tokenizer<CToken, CParseContext> {
 				if(ch == '\n' || ch == '\r') {//改行が来たら
 					state = 0;
 				}else if(ch == (char) -1) {//コメント途中にEOF
-					state = 2;
+					state = 1;
 				}else {
 					state = 9;
 				}
@@ -265,7 +279,19 @@ public class CTokenizer extends Tokenizer<CToken, CParseContext> {
 					accept = true;					
 				}
 				break;
+			case 15:				//*を読んだ
+				tk = new CToken(CToken.TK_AST, lineNo, startCol, "*");
+				accept = true;
+				break;
+			case 16:				//左の括弧'('
+				tk = new CToken(CToken.TK_LPAR, lineNo, startCol, text.toString());
+				accept = true;
+				break;
 				
+			case 17:				//右の括弧')'
+				tk = new CToken(CToken.TK_RPAR, lineNo, startCol, text.toString());
+				accept = true;
+				break;
 			}
 		}
 		return tk;
