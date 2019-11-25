@@ -46,8 +46,8 @@ public class MinusFactor extends CParseRule {
 		o.println(";;; minusFactor starts");
 		if (factor != null) { 
 			factor.codeGen(pcx);
-			o.println("\tMOV\t#0, (R6)+\t; 符号反転ここから");  //符号の反転を行うコード
-			o.println("\tMOV\t-(R6), R0\t;");
+			//o.println("\tMOV\t#0, (R6)+\t; 符号反転ここから");
+			o.println("\tMOV\t#0, R0\t\t; 符号反転ここから");  //符号の反転を行うコード
 			o.println("\tSUB\t-(R6), R0\t;");
 			o.println("\tMOV\tR0, (R6)+\t; 符号反転ここまで");
 		}

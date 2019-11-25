@@ -10,12 +10,12 @@ import lang.c.*;
 import lang.c.parse.Number;
 
 public class UnsignedFactor extends CParseRule {
-	// unsignedFactor ::= factorAmp | number | LPAR expression RPAR
-	private CParseRule number,factoramp,factor,expression;
+	// unsignedFactor ::= factorAmp | number | LPAR expression RPAR | addressToValue
+	private CParseRule number,factoramp,factor,expression,addressToValue;
 	public UnsignedFactor(CParseContext pcx) {
 	}
 	public static boolean isFirst(CToken tk) {
-		return Number.isFirst(tk) || factorAmp.isFirst(tk) || tk.getType() == CToken.TK_LPAR ;//factorAmpかnumberのisFirstを満たす
+		return Number.isFirst(tk) || factorAmp.isFirst(tk) || tk.getType() == CToken.TK_LPAR || AddressToValue.isFirst(tk); //factorAmpかnumberかAddressToValueのisFirstを満たす
 																							//もしくは最初がLPAR
 	}
 	public void parse(CParseContext pcx) throws FatalErrorException {
@@ -36,16 +36,20 @@ public class UnsignedFactor extends CParseRule {
 				expression = new Expression(pcx);
 				expression.parse(pcx);
 				factor = expression;
-				tk = ct.getCurrentToken(pcx);
+				tk = ct.getNextToken(pcx);
 				if(tk.getType() == CToken.TK_RPAR) {
 					tk = ct.getNextToken(pcx);
-					System.out.print("gettype = "+tk.getType()+"gettext = "+tk.getText()+"\n");	
+					//System.out.print("gettype = "+tk.getType()+"gettext = "+tk.getText()+"\n");	
 				} else {
                     pcx.fatalError(tk.toExplainString() + "expressionの後ろには)が来ます");
                 }
             } else {
                 pcx.fatalError(tk.toExplainString() + "(の後ろにはexpressionが来ます");
             }
+		}else if(AddressToValue.isFirst(tk)) {													//addressToValue
+			addressToValue = new AddressToValue(pcx);
+			addressToValue.parse(pcx);
+			factor = addressToValue;
 		}
 	}
 

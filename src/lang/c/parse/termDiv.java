@@ -4,7 +4,6 @@ import java.io.PrintStream;
 
 import lang.*;
 import lang.c.*;
-import lang.c.parse.Number;
 
 public class termDiv extends CParseRule {
 	// factor ::= Div factor

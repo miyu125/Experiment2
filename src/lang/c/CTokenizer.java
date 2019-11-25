@@ -56,7 +56,7 @@ public class CTokenizer extends Tokenizer<CToken, CParseContext> {
 		in = pctx.getIOContext().getInStream();
 		err = pctx.getIOContext().getErrStream();
 		currentTk = readToken();
-		//		System.out.println("Token='" + currentTk.toString());
+				//System.out.println("Token='" + currentTk.toString());
 		return currentTk;
 	}
 	private CToken readToken() {
@@ -112,6 +112,18 @@ public class CTokenizer extends Tokenizer<CToken, CParseContext> {
 					startCol = colNo - 1;
 					text.append(ch);
 					state = 17;
+				}else if (ch == '[') {//[を読んだ
+					startCol = colNo - 1;
+					text.append(ch);
+					state = 19;
+				}else if (ch == ']') {//]を読んだ
+					startCol = colNo - 1;
+					text.append(ch);
+					state = 20;
+				}else if ((ch >= 'A' && ch <= 'Z')||(ch >= 'a' && ch <= 'z')) {//英字を読んだ
+					startCol = colNo - 1;
+					text.append(ch);
+					state = 18;
 				} else {			// ヘンな文字を読んだ
 					startCol = colNo - 1;
 					text.append(ch);
@@ -287,9 +299,33 @@ public class CTokenizer extends Tokenizer<CToken, CParseContext> {
 				tk = new CToken(CToken.TK_LPAR, lineNo, startCol, text.toString());
 				accept = true;
 				break;
-				
 			case 17:				//右の括弧')'
 				tk = new CToken(CToken.TK_RPAR, lineNo, startCol, text.toString());
+				accept = true;
+				break;
+			case 18:				//識別子の開始
+				//System.out.print("case18 : ");
+				ch = readChar();
+				if ((ch >= '0' && ch <= '9') || (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z')) {
+					text.append(ch);
+					state=18;
+				}else if(ch == (char) - 1){
+					state = 0;
+					backChar(ch);
+					break;
+				}else{
+					// 識別子の終わり
+					backChar(ch);	// 識別子を表さない文字は戻す（読まなかったことにする）
+					tk = new CToken(CToken.TK_IDENT, lineNo, startCol, text.toString());
+					accept = true;
+				}
+				break;
+			case 19:				//左の括弧'['
+				tk = new CToken(CToken.TK_LBRA, lineNo, startCol, text.toString());
+				accept = true;
+				break;
+			case 20:				//右の括弧']'
+				tk = new CToken(CToken.TK_RBRA, lineNo, startCol, text.toString());
 				accept = true;
 				break;
 			}

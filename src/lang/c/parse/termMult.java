@@ -4,7 +4,6 @@ import java.io.PrintStream;
 
 import lang.*;
 import lang.c.*;
-import lang.c.parse.Number;
 
 public class termMult extends CParseRule {
 	// factor ::= MULT factor
@@ -25,7 +24,7 @@ public class termMult extends CParseRule {
 			right = new Factor(pcx);
 			right.parse(pcx);
 		}else {
-			pcx.fatalError("*の後ろはfactorが来ます");
+			pcx.fatalError("\t*の後ろはfactorが来ます");
 		}
 	}
 
@@ -44,7 +43,7 @@ public class termMult extends CParseRule {
 			int rt = right.getCType().getType();	// *の右辺の型
 			int nt = s[lt][rt];						// 規則による型計算
 			if (nt == CType.T_err) {
-				pcx.fatalError(op.toExplainString() + "左辺の型[" + left.getCType().toString() + "]と右辺の型[" + right.getCType().toString() + "]は掛けられません");
+				pcx.fatalError(op.toExplainString() + "\t左辺の型[" + left.getCType().toString() + "]と右辺の型[" + right.getCType().toString() + "]は掛けられません");
 			}
 			this.setCType(CType.getCType(nt));
 			this.setConstant(left.isConstant() && right.isConstant());	// *の左右両方が定数のときだけ定数
