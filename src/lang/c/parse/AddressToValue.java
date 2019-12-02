@@ -5,10 +5,6 @@ import lang.*;
 import lang.c.*;
 
 
-import lang.*;
-import lang.c.*;
-import lang.c.parse.Number;
-
 public class AddressToValue extends CParseRule {
 	// unsignedFactor ::= factorAmp | number | LPAR expression RPAR | addressToValue
 	private CParseRule primary;

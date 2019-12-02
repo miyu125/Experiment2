@@ -3,10 +3,6 @@ package lang.c.parse;
 import java.io.PrintStream;
 import lang.*;
 import lang.c.*;
-
-
-import lang.*;
-import lang.c.*;
 import lang.c.parse.Number;
 
 public class UnsignedFactor extends CParseRule {

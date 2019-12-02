@@ -27,11 +27,12 @@ public class Ident extends CParseRule {
 
 	public void semanticCheck(CParseContext pcx) throws FatalErrorException {
 		if(ident != null) {
-			//setCType(CType.getCType(CType.T_int));	
-			setCType(CType.getCType(CType.T_pint));
+			setCType(CType.getCType(CType.T_int));	
+			//setCType(CType.getCType(CType.T_pint));
 			//setCType(CType.getCType(CType.T_array));	
 			//setCType(CType.getCType(CType.T_parray));	
 			setConstant(false);
+			//setConstant(true);
 		}		
 	}
 	

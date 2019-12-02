@@ -124,7 +124,15 @@ public class CTokenizer extends Tokenizer<CToken, CParseContext> {
 					startCol = colNo - 1;
 					text.append(ch);
 					state = 18;
-				} else {			// ヘンな文字を読んだ
+				}else if(ch == '=') {
+					startCol = colNo - 1;
+					text.append(ch);
+					state = 21;					
+				}else if(ch == ';') {
+					startCol = colNo - 1;
+					text.append(ch);
+					state = 22;				
+				}else {			// ヘンな文字を読んだ
 					startCol = colNo - 1;
 					text.append(ch);
 					state = 2;
@@ -326,6 +334,14 @@ public class CTokenizer extends Tokenizer<CToken, CParseContext> {
 				break;
 			case 20:				//右の括弧']'
 				tk = new CToken(CToken.TK_RBRA, lineNo, startCol, text.toString());
+				accept = true;
+				break;
+			case 21:				//'='
+				tk = new CToken(CToken.TK_ASSI, lineNo, startCol, text.toString());
+				accept = true;
+				break;
+			case 22:				//';'
+				tk = new CToken(CToken.TK_SEMI, lineNo, startCol, text.toString());
 				accept = true;
 				break;
 			}
