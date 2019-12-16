@@ -132,6 +132,10 @@ public class CTokenizer extends Tokenizer<CToken, CParseContext> {
 					startCol = colNo - 1;
 					text.append(ch);
 					state = 22;				
+				}else if(ch == ',') {
+					startCol = colNo - 1;
+					text.append(ch);
+					state = 23;				
 				}else {			// ヘンな文字を読んだ
 					startCol = colNo - 1;
 					text.append(ch);
@@ -323,8 +327,12 @@ public class CTokenizer extends Tokenizer<CToken, CParseContext> {
 					break;
 				}else{
 					// 識別子の終わり
-					backChar(ch);	// 識別子を表さない文字は戻す（読まなかったことにする）
-					tk = new CToken(CToken.TK_IDENT, lineNo, startCol, text.toString());
+					backChar(ch);	// 識別子を表さない文字は戻す（読まなかったことにする）// 識別子を切り出す仕事が終わったら
+					String s = text.toString();
+					Integer i = (Integer) rule.get(s);
+					// 切り出した字句が登録済みキーワードかどうかはi がnull かどうかで判定する
+					tk = new CToken(((i == null) ? CToken.TK_IDENT : i.intValue()), lineNo, startCol, s);
+					//tk = new CToken(CToken.TK_IDENT, lineNo, startCol, text.toString());
 					accept = true;
 				}
 				break;
@@ -342,6 +350,10 @@ public class CTokenizer extends Tokenizer<CToken, CParseContext> {
 				break;
 			case 22:				//';'
 				tk = new CToken(CToken.TK_SEMI, lineNo, startCol, text.toString());
+				accept = true;
+				break;
+			case 23:				//','
+				tk = new CToken(CToken.TK_COMMA, lineNo, startCol, text.toString());
 				accept = true;
 				break;
 			}

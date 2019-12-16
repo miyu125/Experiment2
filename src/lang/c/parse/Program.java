@@ -6,20 +6,27 @@ import lang.c.*;
 import java.util.ArrayList;
 
 public class Program extends CParseRule {
-	// program ::= {statement} EOF
-	private CParseRule statement;
-	private ArrayList<CParseRule> listState;
+	// program ::= {declaration} {statement} EOF
+	private CParseRule statement,declaration;
+	private ArrayList<CParseRule> listState,listDecla;
 
 	public Program(CParseContext pcx) {
 		listState = new ArrayList<CParseRule>();
+		listDecla = new ArrayList<CParseRule>();
 	}
 	public static boolean isFirst(CToken tk) {
-		return Statement.isFirst(tk);
+		return Statement.isFirst(tk) || Declaration.isFirst(tk);
 	}
 	public void parse(CParseContext pcx) throws FatalErrorException {
 		// ここにやってくるときは、必ずisFirst()が満たされている
 		CTokenizer ct = pcx.getTokenizer();
 		CToken tk = ct.getCurrentToken(pcx);
+		while(Declaration.isFirst(tk)) {
+			declaration = new Declaration(pcx);
+			declaration.parse(pcx);
+			listDecla.add(declaration);
+			tk = ct.getCurrentToken(pcx);
+		}
 		while(Statement.isFirst(tk)) {
 			statement = new Statement(pcx);
 			statement.parse(pcx);
@@ -32,6 +39,13 @@ public class Program extends CParseRule {
 	}
 
 	public void semanticCheck(CParseContext pcx) throws FatalErrorException {
+		if (declaration != null) { 
+			for(CParseRule listdecla : listDecla ) {
+				if(listdecla != null) {
+					declaration.semanticCheck(pcx);	
+				}
+			}
+		}		
 		if (statement != null) { 
 			for(CParseRule liststate : listState ) {
 				if(liststate != null) {
@@ -47,6 +61,13 @@ public class Program extends CParseRule {
 		o.println("\t. = 0x100");
 		o.println("\tJMP\t__START\t; ProgramNode: 最初の実行文へ");
 		// ここには将来、宣言に対するコード生成が必要
+		if (declaration != null) {
+			for(CParseRule listdecla : listDecla) {
+				if(listdecla != null) {	
+					listdecla.codeGen(pcx);
+				}
+			}
+		}
 		if (statement != null) {
 			o.println("__START:");
 			o.println("\tMOV\t#0x1000, R6\t; ProgramNode: 計算用スタック初期化");

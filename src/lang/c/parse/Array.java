@@ -10,7 +10,7 @@ import lang.c.CTokenizer;
 import lang.c.CType;
 
 public class Array extends CParseRule {
-	// primary ::= primaryMult | variable
+	// array ::= LBRA expression RBRA
 	private CParseRule expression;
 	public Array(CParseContext pcx) {
 	}

@@ -12,4 +12,10 @@ public class CParseContext extends ParseContext {
 
 	private int seqNo = 0;
 	public int getSeqId() { return ++seqNo; }
+	
+	
+	/**/
+	private CSymbolTable csymboltable = new CSymbolTable();
+	public CSymbolTable getCSymbolTable() { return csymboltable; }
+	public void setCSymbolTable(CSymbolTable cst) { this.csymboltable = cst; }
 }
