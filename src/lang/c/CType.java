@@ -6,6 +6,7 @@ public class CType {
 	public static final int T_pint		= 2;		// int*　ポインタ型
 	public static final int T_array		= 3;		// 配列型
 	public static final int T_parray	= 4;		// ポインタ配列型
+	public static final int T_bool		= 5;		// bool
 	
 	
 
@@ -14,7 +15,8 @@ public class CType {
 		new CType(T_int,	"int"),
 		new CType(T_pint,	"int*"),
 		new CType(T_array,	"int[]"),
-		new CType(T_parray,	"int*[]")
+		new CType(T_parray,	"int*[]"),
+		new CType(T_bool,	"bool")
 	};
 
 	private int type;
