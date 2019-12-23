@@ -10,5 +10,10 @@ public class CTokenRule extends HashMap<String, Object> {
 		put("const",new Integer (CToken.TK_CONST));
 		put("true",new Integer(CToken.TK_TRUE));
 		put("false",new Integer(CToken.TK_FALSE));
+		put("if",		new Integer(CToken.TK_IF));
+		put("else",new Integer (CToken.TK_ELSE));
+		put("while",new Integer(CToken.TK_WHILE));
+		put("input",new Integer(CToken.TK_INPUT));
+		put("output",new Integer(CToken.TK_OUTPUT));
 	}
 }

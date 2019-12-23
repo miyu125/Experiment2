@@ -15,7 +15,7 @@ public class Ident extends CParseRule {
 	// primary ::= primaryMult | variable
 	private CToken ident;
 	private CSymbolTableEntry symTable;
-	private CSymbolTable csymboltable;
+	//private CSymbolTable csymboltable;
 	public Ident(CParseContext pcx) {
 	}
 	public static boolean isFirst(CToken tk) {
@@ -43,6 +43,7 @@ public class Ident extends CParseRule {
 			//setConstant(true);
 			setCType(symTable.gettype());
 			setConstant(symTable.getconstp());
+			//System.out.print("const = "+symTable.getconstp()+"\n");
 		}		
 	}
 	

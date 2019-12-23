@@ -26,6 +26,13 @@ public class CToken extends SimpleToken {
 	public static final int TK_GE			= 21;				// >=
 	public static final int TK_EQ			= 22;				// ==
 	public static final int TK_NE			= 23;				// !=
+	public static final int TK_LCUR			= 24;				//{
+	public static final int TK_RCUR			= 25;				//}
+	public static final int TK_IF			= 26;				//if
+	public static final int TK_ELSE			= 27;				// else
+	public static final int TK_WHILE		= 28;				// while
+	public static final int TK_INPUT		= 29;				// input
+	public static final int TK_OUTPUT		= 30;				// output
 
 	public CToken(int type, int lineNo, int colNo, String s) {
 		super(type, lineNo, colNo, s);

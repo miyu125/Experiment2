@@ -148,6 +148,14 @@ public class CTokenizer extends Tokenizer<CToken, CParseContext> {
 					startCol = colNo - 1;
 					text.append(ch);
 					state = 26;				
+				}else if(ch == '{') {
+					startCol = colNo - 1;
+					text.append(ch);
+					state = 27;				
+				}else if(ch == '}') {
+					startCol = colNo - 1;
+					text.append(ch);
+					state = 28;				
 				}else {			// ヘンな文字を読んだ
 					startCol = colNo - 1;
 					text.append(ch);
@@ -409,7 +417,16 @@ public class CTokenizer extends Tokenizer<CToken, CParseContext> {
 				}else {
 					state = 2;
 					backChar(ch);
+					break;
 				}
+			case 27:					//左の括弧'['
+				tk = new CToken(CToken.TK_LCUR, lineNo, startCol, text.toString());
+				accept = true;
+				break;
+			case 28:					//左の括弧'['
+				tk = new CToken(CToken.TK_RCUR, lineNo, startCol, text.toString());
+				accept = true;
+				break;
 			}
 		}
 		return tk;
